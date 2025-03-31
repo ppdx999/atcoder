@@ -31,6 +31,9 @@ void input(T& a, Args&... args) {
 	input(args...);
 }
 
+#define YES do { cout << "Yes" << endl;} while(0)
+#define NO  do { cout << "No" << endl;} while(0)
+
 constexpr int INF = std::numeric_limits<int>::max();
 typedef long long ll;
 
