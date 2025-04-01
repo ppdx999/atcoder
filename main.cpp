@@ -23,7 +23,7 @@ using namespace std;
 #define drep(...) GET_MACRO(__VA_ARGS__, drep3, drep2, drep1)(__VA_ARGS__)
 #define DREP(...) GET_MACRO(__VA_ARGS__, DREP3, DREP2, DREP1)(__VA_ARGS__)
 
-#define in(type, ...) type __VA_ARGS__; input(__VA_ARGS__)
+#define in(type, ...) do { type __VA_ARGS__; input(__VA_ARGS__); } while(0)
 void input() {}
 template<typename T, typename... Args>
 void input(T& a, Args&... args) {
