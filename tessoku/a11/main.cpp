@@ -47,7 +47,7 @@ int binary_search(int N, int X) {
 		mid = (l+r)/2;
 		if(A[mid] == X) return mid;
 		else if(A[mid] < X) l=mid+1;
-		else r=mid;
+		else r=mid-1;
 	}
 	return -1;
 }
