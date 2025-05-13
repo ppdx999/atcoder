@@ -21,3 +21,8 @@ yn False = "No"
 
 printYn :: Bool -> IO ()
 printYn = putStrLn . yn
+
+main :: IO ()
+main = do
+  (n : _) <- ints
+  print $ n * n
