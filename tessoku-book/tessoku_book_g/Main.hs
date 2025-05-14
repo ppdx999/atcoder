@@ -3,6 +3,7 @@
 module Main (main) where
 
 import Control.Monad (replicateM)
+import Data.Array.Unboxed (IArray (bounds), Ix (range), UArray, accumArray, assocs, elems, listArray, (!))
 import Data.ByteString.Char8 qualified as BS
 import Data.List qualified as L
 import Data.Map.Strict qualified as Map
@@ -30,17 +31,22 @@ yn False = "No"
 printYn :: Bool -> IO ()
 printYn = putStrLn . yn
 
+newArr :: (Int, Int) -> [(Int, Int)] -> UArray Int Int
+newArr bound lrs =
+  accumArray (+) 0 bound $
+    concatMap parse lrs
+  where
+    parse :: (Int, Int) -> [(Int, Int)]
+    parse (l, r) = [(l, 1), (r + 1, -1)]
+
+cum1D :: UArray Int Int -> UArray Int Int
+cum1D arr = listArray (bounds arr) (scanl1 (+) (elems arr))
+
 main :: IO ()
 main = do
   d <- ints1
   n <- ints1
   lrs <- replicateM n ints2
+  let acm = cum1D $ newArr (0, d + 1) lrs
 
-  let diffMap = foldl insertDiff Map.empty lrs
-      diffs = [Map.findWithDefault 0 i diffMap | i <- [1 .. d + 1]]
-      res = take d $ tail $ scanl (+) 0 diffs
-  mapM_ print res
-
-insertDiff :: Map.Map Int Int -> (Int, Int) -> Map.Map Int Int
-insertDiff m (l, r) =
-  Map.insertWith (+) l 1 $ Map.insertWith (+) (r + 1) (-1) m
+  mapM_ print [acm ! i | i <- [1 .. d]]
