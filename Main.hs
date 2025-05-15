@@ -13,10 +13,11 @@ import GHC.Unicode (isSpace)
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
 
-ints1 :: IO (Int, Int)
+ints1 :: IO Int
 ints1 =
   ints >>= \case
-    [x1, x2] -> return (x1, x2)
+    [x1] -> return x1
+    _ -> error "ints1: wrong number of integers"
 
 ints2 :: IO (Int, Int)
 ints2 =
