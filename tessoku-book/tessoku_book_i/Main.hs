@@ -38,28 +38,18 @@ ints4 =
     [x1, x2, x3, x4] -> return (x1, x2, x3, x4)
     _ -> error "ints4: wrong number of integers"
 
-yn :: Bool -> String
-yn True = "Yes"
-yn False = "No"
-
-printYn :: Bool -> IO ()
-printYn = putStrLn . yn
-
 type Matrix = Array (Int, Int) Int
 
-getMat :: Int -> Int -> IO Matrix
-getMat h w = listArray ((0, 0), (h - 1, w - 1)) . concat <$> replicateM h ints
-
-scanMatrix :: (Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int -> Int -> Int) -> Matrix -> Matrix
-scanMatrix topLeftFn leftFn topFn othersFn mat = dp
+csum2D :: Matrix -> Matrix
+csum2D mat = dp
   where
     dp = listArray (bounds mat) (go <$> assocs mat)
     go = \case
       (ij@(i, j), a)
-        | ij == ij0 -> topLeftFn a
-        | i == i0 -> topFn (dp ! pred_j ij) a
-        | j == j0 -> leftFn (dp ! pred_i ij) a
-        | otherwise -> othersFn (dp ! pred_ij ij) (dp ! pred_i ij) (dp ! pred_j ij) a
+        | ij == ij0 -> a
+        | i == i0 -> (dp ! pred_j ij) + a
+        | j == j0 -> (dp ! pred_i ij) + a
+        | otherwise -> (dp ! pred_i ij) + (dp ! pred_j ij) - (dp ! pred_ij ij) + a
         where
           ij0 = fst (bounds mat)
           i0 = fst ij0
@@ -67,18 +57,6 @@ scanMatrix topLeftFn leftFn topFn othersFn mat = dp
           pred_i = first pred
           pred_j = second pred
           pred_ij = bimap pred pred
-
-cum2D :: Matrix -> Matrix
-cum2D = scanMatrix id (+) (+) (\predij predi predj val -> predi + predj - predij + val)
-
-printMat :: ((Int, Int), (Int, Int)) -> Matrix -> IO ()
-printMat bound mat = do
-  let ((r0, c0), (r1, c1)) = bound
-  mapM_
-    putStrLn
-    [ unwords [show (mat ! (i, j)) | j <- [c0 .. c1]]
-      | i <- [r0 .. r1]
-    ]
 
 newMatrix :: ((Int, Int), (Int, Int)) -> [(Int, Int, Int, Int)] -> Matrix
 newMatrix bound qs = accumArray (+) 0 bound $ concatMap parse qs
@@ -91,8 +69,20 @@ newMatrix bound qs = accumArray (+) 0 bound $ concatMap parse qs
         ((c + 1, d + 1), 1)
       ]
 
+printMat :: ((Int, Int), (Int, Int)) -> Matrix -> IO ()
+printMat bound mat = do
+  let ((r0, c0), (r1, c1)) = bound
+  mapM_
+    putStrLn
+    [ unwords [show (mat ! (i, j)) | j <- [c0 .. c1]]
+      | i <- [r0 .. r1]
+    ]
+
 main :: IO ()
 main = do
   (h, w, n) <- ints3
   qs <- replicateM n ints4
-  printMat ((1, 1), (h, w)) $ cum2D $ newMatrix ((0, 0), (h + 1, w + 1)) qs
+  let bound = ((0, 0), (h, w))
+      idxVal (a, b, c, d) = [((a, b), 1), ((c + 1, b), -1), ((a, d + 1), -1), ((c + 1, d + 1), 1)]
+      mat = accumArray (+) 0 bound $ concatMap idxVal qs :: Matrix
+   in printMat ((1, 1), (h, w)) $ csum2D mat
