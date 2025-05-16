@@ -24,13 +24,6 @@ ints2 =
     [x1, x2] -> return (x1, x2)
     _ -> error "ints2: wrong number of integers"
 
-yn :: Bool -> String
-yn True = "Yes"
-yn False = "No"
-
-printYn :: Bool -> IO ()
-printYn = putStrLn . yn
-
 newArr :: (Int, Int) -> [(Int, Int)] -> UArray Int Int
 newArr bound lrs =
   accumArray (+) 0 bound $
