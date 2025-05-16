@@ -14,9 +14,12 @@ yn False = "No"
 printYn :: Bool -> IO ()
 printYn = putStrLn . yn
 
+within :: Int -> Int -> [Int] -> [Int]
+within l r = filter (\x -> l <= x && x <= r)
+
 main :: IO ()
 main = do
   (n : k : _) <- ints
   let red = [1 .. n]
   let blue = [1 .. n]
-  print $ length $ filter (>= 1) $ filter (<= n) [k - x - y | x <- red, y <- blue]
+  print $ length $ within 1 n [k - x - y | x <- red, y <- blue]
