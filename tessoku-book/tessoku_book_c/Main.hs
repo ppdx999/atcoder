@@ -17,6 +17,6 @@ main :: IO ()
 main = do
   (n : k : _) <- ints
   ps <- ints
-  ks <- ints
+  qs <- ints
 
-  printYn $ k `elem` [x + y | x <- ps, y <- ks]
+  printYn $ k `elem` [p + q | p <- ps, q <- qs]
