@@ -50,16 +50,37 @@ type Matrix = Array (Int, Int) Int
 getMat :: Int -> Int -> IO Matrix
 getMat h w = listArray ((0, 0), (h - 1, w - 1)) . concat <$> replicateM h ints
 
-scanMatrix :: (Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int -> Int -> Int) -> Matrix -> Matrix
-scanMatrix topLeftFn leftFn topFn othersFn mat = dp
+-- scanMatrix :: (Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int -> Int -> Int) -> Matrix -> Matrix
+-- scanMatrix topLeftFn leftFn topFn othersFn mat = dp
+--   where
+--     dp = listArray (bounds mat) (go <$> assocs mat)
+--     go = \case
+--       (ij@(i, j), a)
+--         | ij == ij0 -> topLeftFn a
+--         | i == i0 -> topFn (dp ! pred_j ij) a
+--         | j == j0 -> leftFn (dp ! pred_i ij) a
+--         | otherwise -> othersFn (dp ! pred_ij ij) (dp ! pred_i ij) (dp ! pred_j ij) a
+--         where
+--           ij0 = fst (bounds mat)
+--           i0 = fst ij0
+--           j0 = snd ij0
+--           pred_i = first pred
+--           pred_j = second pred
+--           pred_ij = bimap pred pred
+
+-- cum2D :: Matrix -> Matrix
+-- cum2D = scanMatrix id (+) (+) (\predij predi predj val -> predi + predj - predij + val)
+
+csum2D :: Matrix -> Matrix
+csum2D mat = dp
   where
     dp = listArray (bounds mat) (go <$> assocs mat)
     go = \case
       (ij@(i, j), a)
-        | ij == ij0 -> topLeftFn a
-        | i == i0 -> topFn (dp ! pred_j ij) a
-        | j == j0 -> leftFn (dp ! pred_i ij) a
-        | otherwise -> othersFn (dp ! pred_ij ij) (dp ! pred_i ij) (dp ! pred_j ij) a
+        | ij == ij0 -> a
+        | i == i0 -> (dp ! pred_j ij) + a
+        | j == j0 -> (dp ! pred_i ij) + a
+        | otherwise -> (dp ! pred_i ij) + (dp ! pred_j ij) - (dp ! pred_ij ij) + a
         where
           ij0 = fst (bounds mat)
           i0 = fst ij0
@@ -67,9 +88,6 @@ scanMatrix topLeftFn leftFn topFn othersFn mat = dp
           pred_i = first pred
           pred_j = second pred
           pred_ij = bimap pred pred
-
-cum2D :: Matrix -> Matrix
-cum2D = scanMatrix id (+) (+) (\predij predi predj val -> predi + predj - predij + val)
 
 to1Index :: Matrix -> Matrix
 to1Index mat = array ((r0, c0), (h, w)) newAssocs
@@ -89,7 +107,7 @@ to1Index mat = array ((r0, c0), (h, w)) newAssocs
 main :: IO ()
 main = do
   (h, w) <- ints2
-  mat <- getMat h w <&> cum2D . to1Index
+  mat <- getMat h w <&> csum2D . to1Index
   q <- ints1
   qs <- replicateM q ints4
   mapM_ (print . calcSum mat) qs
