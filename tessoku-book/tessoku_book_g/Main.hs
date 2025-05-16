@@ -24,22 +24,16 @@ ints2 =
     [x1, x2] -> return (x1, x2)
     _ -> error "ints2: wrong number of integers"
 
-newArr :: (Int, Int) -> [(Int, Int)] -> UArray Int Int
-newArr bound lrs =
-  accumArray (+) 0 bound $
-    concatMap parse lrs
-  where
-    parse :: (Int, Int) -> [(Int, Int)]
-    parse (l, r) = [(l, 1), (r + 1, -1)]
+type Index = Int
 
-cum1D :: UArray Int Int -> UArray Int Int
-cum1D arr = listArray (bounds arr) (scanl1 (+) (elems arr))
+type Value = Int
 
 main :: IO ()
 main = do
   d <- ints1
   n <- ints1
   lrs <- replicateM n ints2
-  let acm = cum1D $ newArr (0, d + 1) lrs
-
-  mapM_ print [acm ! i | i <- [1 .. d]]
+  let idxVal = concatMap (\(l, r) -> [(l, 1), (r + 1, -1)]) lrs :: [(Index, Value)]
+      arr = accumArray (+) 0 (0, d + 1) idxVal :: UArray Index Value
+      acm = listArray (bounds arr) (scanl1 (+) (elems arr)) :: UArray Index Value
+   in mapM_ print [acm ! i | i <- [1 .. d]]
