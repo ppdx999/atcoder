@@ -58,17 +58,6 @@ csum2D mat = dp
           pred_j = second pred
           pred_ij = bimap pred pred
 
-newMatrix :: ((Int, Int), (Int, Int)) -> [(Int, Int, Int, Int)] -> Matrix
-newMatrix bound qs = accumArray (+) 0 bound $ concatMap parse qs
-  where
-    parse :: (Int, Int, Int, Int) -> [((Int, Int), Int)]
-    parse (a, b, c, d) =
-      [ ((a, b), 1),
-        ((c + 1, b), -1),
-        ((a, d + 1), -1),
-        ((c + 1, d + 1), 1)
-      ]
-
 printMat :: ((Int, Int), (Int, Int)) -> Matrix -> IO ()
 printMat bound mat = do
   let ((r0, c0), (r1, c1)) = bound
