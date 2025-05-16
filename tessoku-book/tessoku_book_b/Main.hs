@@ -8,12 +8,16 @@ import GHC.Unicode (isSpace)
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
 
+yn :: Bool -> String
 yn True = "Yes"
 yn False = "No"
+
+printYn :: Bool -> IO ()
+printYn = putStrLn . yn
 
 main :: IO ()
 main = do
   (n : x : _) <- ints
   arr <- ints
 
-  putStrLn . yn $ x `elem` arr
+  printYn $ x `elem` arr
