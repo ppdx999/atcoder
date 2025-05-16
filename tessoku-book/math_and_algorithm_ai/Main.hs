@@ -18,13 +18,16 @@ ints2 =
     [x1, x2] -> return (x1, x2)
     _ -> error "ints2: wrong number of integers"
 
-csum1D :: [Int] -> Array Int Int
-csum1D as = listArray (0, length as) $ L.scanl' (+) 0 as
+csum :: [Int] -> [Int]
+csum = L.scanl' (+) 0
+
+toArray :: [Int] -> Array Int Int
+toArray as = listArray (0, length as - 1) as
 
 main :: IO ()
 main = do
   (n, q) <- ints2
-  as <- ints <&> csum1D
+  as <- ints <&> (toArray . csum)
   qs <- replicateM q ints2
   let countGuests (l, r) = (as ! r) - (as ! pred l)
    in mapM_ (print . countGuests) qs
