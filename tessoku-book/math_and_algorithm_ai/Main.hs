@@ -26,7 +26,5 @@ main = do
   (n, q) <- ints2
   as <- ints <&> csum1D
   qs <- replicateM q ints2
-  mapM_ (print . countGuests as) qs
-
-countGuests :: Array Int Int -> (Int, Int) -> Int
-countGuests as (l, r) = (as ! r) - (as ! pred l)
+  let countGuests (l, r) = (as ! r) - (as ! pred l)
+   in mapM_ (print . countGuests) qs
