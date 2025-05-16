@@ -53,14 +53,11 @@ check as k n = k <= sum (map (n `div`) as)
 
 binSearch :: [Int] -> Int -> Int -> Int -> Int
 binSearch as ng ok k
-  | ok - ng > 1 =
-      let mid = (ok + ng) `div` 2
-          (ng', ok') =
-            if check as k mid
-              then (ng, mid)
-              else (mid, ok)
-       in binSearch as ng' ok' k
+  | ok - ng > 1 = binSearch as ng' ok' k
   | otherwise = ok
+  where
+    mid = (ok + ng) `div` 2
+    (ng', ok') = if check as k mid then (ng, mid) else (mid, ok)
 
 main :: IO ()
 main = do
