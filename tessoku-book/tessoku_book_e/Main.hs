@@ -14,5 +14,7 @@ main :: IO ()
 main = do
   (n : k : _) <- ints
   let red = [1 .. n]
-  let blue = [1 .. n]
-  print $ length $ within 1 n [k - x - y | x <- red, y <- blue]
+      blue = [1 .. n]
+      possibleAnswers = [k - x - y | x <- red, y <- blue]
+      countUpAnswer = length . within 1 n
+  print $ countUpAnswer possibleAnswers
