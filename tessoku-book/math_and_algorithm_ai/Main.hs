@@ -6,9 +6,7 @@ import Control.Monad (replicateM)
 import Data.Array.Unboxed (Array, listArray, (!))
 import Data.ByteString.Char8 qualified as BS
 import Data.Functor ((<&>))
-import Data.List (intercalate)
 import Data.List qualified as L
-import Data.Traversable (for)
 import GHC.Unicode (isSpace)
 
 ints :: IO [Int]
@@ -20,21 +18,15 @@ ints2 =
     [x1, x2] -> return (x1, x2)
     _ -> error "ints2: wrong number of integers"
 
-yn :: Bool -> String
-yn True = "Yes"
-yn False = "No"
-
-printYn :: Bool -> IO ()
-printYn = putStrLn . yn
-
-csum1D n = listArray (0, n) . L.scanl' (+) 0
+csum1D :: [Int] -> Array Int Int
+csum1D as = listArray (0, length as) $ L.scanl' (+) 0 as
 
 main :: IO ()
 main = do
   (n, q) <- ints2
-  as <- ints <&> csum1D n
+  as <- ints <&> csum1D
   qs <- replicateM q ints2
-  mapM_ (print . process as) qs
+  mapM_ (print . countGuests as) qs
 
-process :: Array Int Int -> (Int, Int) -> Int
-process as (l, r) = (as ! r) - (as ! pred l)
+countGuests :: Array Int Int -> (Int, Int) -> Int
+countGuests as (l, r) = (as ! r) - (as ! pred l)
