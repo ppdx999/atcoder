@@ -8,14 +8,12 @@ import GHC.Unicode (isSpace)
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
 
-boolYn True = "Yes"
-boolYn False = "No"
-
-moreThan n arr = length arr >= n
+yn True = "Yes"
+yn False = "No"
 
 main :: IO ()
 main = do
   (n : x : _) <- ints
   arr <- ints
 
-  putStrLn $ boolYn $ moreThan 1 $ filter (== x) arr
+  putStrLn . yn $ x `elem` arr
