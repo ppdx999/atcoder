@@ -86,23 +86,14 @@ to1Index mat = array ((r0, c0), (h, w)) newAssocs
         -- body elements
         ++ [((i, j), mat ! (i - 1, j - 1)) | i <- [1 .. h], j <- [1 .. w]]
 
-printMat :: Matrix -> IO ()
-printMat mat = do
-  let ((r0, c0), (r1, c1)) = bounds mat
-  mapM_
-    putStrLn
-    [ unwords [show (mat ! (i, j)) | j <- [c0 .. c1]]
-      | i <- [r0 .. r1]
-    ]
-
 main :: IO ()
 main = do
   (h, w) <- ints2
   mat <- getMat h w <&> cum2D . to1Index
   q <- ints1
   qs <- replicateM q ints4
-  mapM_ (print . plus mat) qs
+  mapM_ (print . calcSum mat) qs
 
-plus :: Matrix -> (Int, Int, Int, Int) -> Int
-plus mat (a, b, c, d) =
+calcSum :: Matrix -> (Int, Int, Int, Int) -> Int
+calcSum mat (a, b, c, d) =
   (mat ! (a - 1, b - 1)) + (mat ! (c, d)) - (mat ! (a - 1, d)) - (mat ! (c, b - 1))
