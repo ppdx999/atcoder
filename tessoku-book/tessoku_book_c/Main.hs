@@ -19,4 +19,4 @@ main = do
   ps <- ints
   ks <- ints
 
-  printYn $ elem k [x + y | x <- ps, y <- ks]
+  printYn $ k `elem` [x + y | x <- ps, y <- ks]
