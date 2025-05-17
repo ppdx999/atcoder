@@ -63,5 +63,5 @@ main = do
   (n, k) <- ints2
   [as, bs, cs, ds] <- replicateM 4 ints
   let p = sort [k - a - b | a <- as, b <- bs]
-      q = buildTree $ sort [c + d | c <- cs, d <- ds]
-   in printYn $ any (find q) p
+      q = sort [c + d | c <- cs, d <- ds]
+   in printYn $ any (find (buildTree q)) p
