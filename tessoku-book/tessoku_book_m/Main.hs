@@ -31,6 +31,7 @@ shakutori as k = go pairs pairs
     -- 右端に到達したらLを１進める
     -- このときNとposLの差分が条件を満たす組み合わせの数になる
     go lls@((posL, _) : ls) [] = (n - posL - 1) + go ls []
+    -- それ以外の場合
     go lls@((posL, l) : ls) rrs@((posR, r) : rs)
       -- 同じ場所に来たらRを一つ進める
       | posL == posR = go lls rs
