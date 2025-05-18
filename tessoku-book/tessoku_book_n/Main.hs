@@ -64,4 +64,5 @@ main = do
   [as, bs, cs, ds] <- replicateM 4 ints
   let p = sort [k - a - b | a <- as, b <- bs]
       q = sort [c + d | c <- cs, d <- ds]
-   in printYn $ any (find (buildTree q)) p
+      binSearch = find (buildTree q)
+   in printYn $ any binSearch p
