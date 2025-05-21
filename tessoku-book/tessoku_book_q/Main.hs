@@ -17,14 +17,8 @@ solve (a2 : as) bs =
       room2 = (a2, [2, 1])
 
       -- 漸化式
-      --   c1 :: Int      -->   １つ前のコスト
-      --   p1 :: [Int]    -->   １つ前までの経路
-      --   c2 :: Int      -->   ２つ前のコスト
-      --   p2 :: [Int]    -->   ２つ前までの経路
       calcNext ((c1, p1), (c2, p2)) (i, a, b) =
         min (c1 + a, i : p1) (c2 + b, i : p2)
-
-      -- ステップ
       step acm curr = (calcNext acm curr, fst acm)
       -- 畳み込み
       (_, revPath) = fst $ foldl step (room2, room1) (zip3 [3 ..] as bs)
