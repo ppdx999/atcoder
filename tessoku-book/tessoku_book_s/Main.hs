@@ -3,11 +3,11 @@
 module Main (main) where
 
 import Control.Monad (replicateM)
-import Data.Array.Unboxed (UArray, array, bounds, listArray, range, (!))
+import Data.Array.Unboxed (IArray, Ix, UArray, array, bounds, listArray, range, (!))
 import Data.ByteString.Char8 qualified as BS
 import Data.List qualified as L
 import GHC.Unicode (isSpace)
-import Prelude hiding (last, scanl1)
+import Prelude hiding (last)
 
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
@@ -21,11 +21,11 @@ ints2 =
 last :: UArray Int Int -> Int
 last arr = arr ! snd (bounds arr)
 
-scanl1 :: (Int -> Int) -> UArray Int Int -> UArray Int Int
-scanl1 f arr = listArray (bounds arr) [f i | i <- range (bounds arr)]
+scanlByIndex :: (Ix i, IArray UArray e) => (i -> e) -> UArray i e -> UArray i e
+scanlByIndex f arr = listArray (bounds arr) [f i | i <- range (bounds arr)]
 
 step :: (Int, Int) -> UArray Int Int -> UArray Int Int
-step (w_i, v_i) dp_i = scanl1 diffEquation dp_i
+step (w_i, v_i) dp_i = scanlByIndex diffEquation dp_i
   where
     -- 漸化式
     diffEquation w
