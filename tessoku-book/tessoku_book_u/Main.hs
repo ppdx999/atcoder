@@ -44,12 +44,8 @@ buildDP n blocks = dp
         score i
           | l <= p i && p i <= r = a i
           | otherwise = 0
-        leftScore
-          | l <= 1 = 0
-          | otherwise = score (l - 1) + dp ! (l - 1, r)
-        rightScore
-          | r >= n = 0
-          | otherwise = score (r + 1) + dp ! (l, r + 1)
+        leftScore = score (l - 1) + dp ! (l - 1, r)
+        rightScore = score (r + 1) + dp ! (l, r + 1)
 
 main :: IO ()
 main = do
