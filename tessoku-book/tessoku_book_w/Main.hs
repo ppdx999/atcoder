@@ -15,6 +15,8 @@ import GHC.Unicode (isSpace)
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
 
+-- | 上位ビットから並んだ 0/1 のリストを Int に変換
+-- 例: [1,0,1] => 5   (5は二進数で101を意味する)
 bitsToInt :: [Int] -> Int
 bitsToInt = L.foldl' step 0
   where
@@ -22,9 +24,12 @@ bitsToInt = L.foldl' step 0
       | b == 0 || b == 1 = (acc `shiftL` 1) .|. b
       | otherwise = error "bitsToInt: invalid bit"
 
+-- | n桁のビット列の最大値
+-- 例: fullBits 3 => 7   (7は二進数で111を意味する)
 fullBits :: Int -> Int
 fullBits n = (1 `shiftL` n) - 1
 
+-- | Intの最大値
 maxInt :: Int
 maxInt = 10 ^ 9
 
@@ -41,17 +46,13 @@ emptySet = BitSet 0
 (\/) :: BitSet -> BitSet -> BitSet
 (\/) (BitSet a) (BitSet b) = BitSet (a .|. b)
 
--- | 下位ビットがリストの末尾にある [Int] を BitSet に変換
--- 例: fromInts [1,0,1] → BitSet 5
-fromInts :: [Int] -> BitSet
-fromInts = BitSet . bitsToInt . reverse
-
 -------------------------------------------------------
 -- Main
 -------------------------------------------------------
 solve :: Int -> [BitSet] -> A.Array BitSet Int
-solve n = L.foldl step dp_0
+solve n = L.foldl step dp_0 -- 畳み込み
   where
+    -- 初期値
     dp_0 = A.listArray (BitSet 0, BitSet (fullBits n)) (0 : replicate (fullBits n) maxInt)
 
     -- dp[i]とT[i]からdp[i+1]を計算する
@@ -71,7 +72,9 @@ printResult n
 main :: IO ()
 main = do
   [n, m] <- ints
-  coupons <- replicateM m ints <&> map fromInts
+  -- \| BitSet . bitsToInt . reverseは入力を[BitSet]に変換
+  -- 例: [1,0,1] → BitSet 5
+  coupons <- replicateM m ints <&> map (BitSet . bitsToInt . reverse)
   let dp = solve n coupons
       last = dp ! BitSet (fullBits n)
   printResult last
