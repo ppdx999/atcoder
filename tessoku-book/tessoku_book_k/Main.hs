@@ -1,14 +1,9 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Main (main) where
 
 import Data.ByteString.Char8 qualified as BS
 import Data.List qualified as L
+import Data.Maybe (fromMaybe)
 import GHC.Unicode (isSpace)
-
--- ///////////////////////////////////////////////////////////////////////
--- TEMPLATE
--- ///////////////////////////////////////////////////////////////////////
 
 ----------------
 -- In / Out
@@ -16,18 +11,6 @@ import GHC.Unicode (isSpace)
 
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
-
-ints1 :: IO Int
-ints1 =
-  ints >>= \case
-    [x1] -> return x1
-    _ -> error "ints1: wrong number of integers"
-
-ints2 :: IO (Int, Int)
-ints2 =
-  ints >>= \case
-    [x1, x2] -> return (x1, x2)
-    _ -> error "ints2: wrong number of integers"
 
 ----------------
 -- Tree
@@ -61,12 +44,8 @@ buildTree xs = fst (go (length xs) (zip xs [1 ..]))
 -- Main
 -- ///////////////////////////////////////////////////////////////////////
 
-maybeToInt :: Maybe Int -> Int
-maybeToInt Nothing = 0
-maybeToInt (Just x) = x
-
 main :: IO ()
 main = do
-  (_, x) <- ints2
+  [_n, x] <- ints
   as <- ints
-  print . maybeToInt $ search x (buildTree as)
+  print $ fromMaybe 0 (search x (buildTree as))
