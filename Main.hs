@@ -2,16 +2,13 @@
 
 module Main (main) where
 
-import Data.ByteString.Char8 qualified as BS
-import Data.List qualified as L
+import Data.ByteString.Char8 (dropWhile, getLine, readInt)
+import Data.List (unfoldr)
 import GHC.Unicode (isSpace)
-
--- ///////////////////////////////////////////////////////////////////////
--- TEMPLATE
--- ///////////////////////////////////////////////////////////////////////
+import Prelude hiding (dropWhile, getLine)
 
 ints :: IO [Int]
-ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
+ints = unfoldr (readInt . dropWhile isSpace) <$> getLine
 
 ints1 :: IO Int
 ints1 =
@@ -50,5 +47,4 @@ printYn = putStrLn . yn
 
 main :: IO ()
 main = do
-  (n : _) <- ints
-  print $ n * n
+  print 0
