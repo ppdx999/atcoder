@@ -7,6 +7,7 @@ import Data.List (unfoldr)
 import GHC.Unicode (isSpace)
 import Prelude hiding (dropWhile, getLine)
 
+-- | 標準入力の1行をスペース区切りで文字列のリストに分割する
 ints :: IO [Int]
 ints = unfoldr (readInt . dropWhile isSpace) <$> getLine
 
@@ -47,4 +48,7 @@ printYn = putStrLn . yn
 
 main :: IO ()
 main = do
+  -- 入力
+  -- 計算
+  -- 出力
   print 0
