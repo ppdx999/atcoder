@@ -1,39 +1,28 @@
-{-# LANGUAGE LambdaCase #-}
-
-module Main (main) where
-
 import Control.Monad (replicateM)
-import Data.Array.Unboxed (IArray (bounds), Ix (range), UArray, accumArray, assocs, elems, listArray, (!))
-import Data.ByteString.Char8 qualified as BS
-import Data.List qualified as L
-import Data.Map.Strict qualified as Map
-import GHC.Unicode (isSpace)
+import Data.Array (accumArray, elems)
 
 ints :: IO [Int]
-ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
+ints = map read . words <$> getLine
 
-ints1 :: IO Int
-ints1 =
-  ints >>= \case
-    [x] -> return x
-    _ -> error "ints1: wrong number of integers"
+ints2 = (\[x1, x2] -> (x1, x2)) <$> ints
 
-ints2 :: IO (Int, Int)
-ints2 =
-  ints >>= \case
-    [x1, x2] -> return (x1, x2)
-    _ -> error "ints2: wrong number of integers"
+solve d n lrs =
+  -- d+1を除く
+  init $
+    -- 一次元累積和を計算する
+    scanl1 (+) $
+      -- ArrayをListに戻す
+      elems $
+        -- デフォルトは0、重複している場合は(+)を適用しながらArrayを構築する
+        accumArray (+) 0 (1, d + 1) $
+          -- (index, value)のリストを作る。
+          -- 例 (l,r) が (2, 3) -> [(2, 1), (3, -1)]
+          concatMap (\(l, r) -> [(l, 1), (r + 1, -1)]) lrs
 
-type Index = Int
-
-type Value = Int
-
-main :: IO ()
 main = do
-  d <- ints1
-  n <- ints1
+  -- 入力
+  [d] <- ints
+  [n] <- ints
   lrs <- replicateM n ints2
-  let idxVal = concatMap (\(l, r) -> [(l, 1), (r + 1, -1)]) lrs :: [(Index, Value)]
-      arr = accumArray (+) 0 (0, d + 1) idxVal :: UArray Index Value
-      acm = listArray (bounds arr) (scanl1 (+) (elems arr)) :: UArray Index Value
-   in mapM_ print [acm ! i | i <- [1 .. d]]
+  -- 出力
+  mapM_ print (solve d n lrs)
