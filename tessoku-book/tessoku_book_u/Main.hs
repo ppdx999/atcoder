@@ -18,9 +18,6 @@ ints2 =
     [x1, x2] -> return (x1, x2)
     _ -> error "ints2: wrong number of integers"
 
-maxs :: [Int] -> Int
-maxs = foldl max 0
-
 type Blocks = Array Int (Int, Int)
 
 type DP = Array (Int, Int) Int
@@ -53,4 +50,4 @@ main = do
   blocks <- replicateM n ints2 <&> listArray (1, n)
   let dp = buildDP n blocks
       possibleAnswers = [dp ! (i, i) | i <- [1 .. n]]
-   in print $ maxs possibleAnswers
+   in print $ maximum possibleAnswers
