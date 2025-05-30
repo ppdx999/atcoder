@@ -22,9 +22,6 @@ last arr = arr ! snd (bounds arr)
 len :: Array Int e -> Int
 len arr = let (start, end) = bounds arr in end - start + 1
 
-maxs :: [Int] -> Int
-maxs = foldl max 0
-
 solve :: Str -> Str -> DP
 solve s t = dp
   where
@@ -35,7 +32,7 @@ solve s t = dp
     step (0, j) = 0
     step (i, 0) = 0
     step (i, j)
-      | s ! i == t ! j = maxs [left, up, diag + 1]
+      | s ! i == t ! j = maximum [left, up, diag + 1]
       | otherwise = max left up
       where
         left = dp ! (i - 1, j) -- 左のマス
