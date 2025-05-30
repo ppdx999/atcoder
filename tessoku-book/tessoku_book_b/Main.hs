@@ -1,23 +1,12 @@
-module Main (main) where
-
-import Data.ByteString.Char8 qualified as BS
-import Data.List qualified as L
-import Distribution.Utils.Generic (safeHead)
-import GHC.Unicode (isSpace)
-
 ints :: IO [Int]
-ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
+ints = map read . words <$> getLine
 
-yn :: Bool -> String
 yn True = "Yes"
 yn False = "No"
 
-printYn :: Bool -> IO ()
-printYn = putStrLn . yn
-
-main :: IO ()
 main = do
-  (n : x : _) <- ints
+  -- 入力
+  [n, x] <- ints
   arr <- ints
-
-  printYn $ x `elem` arr
+  -- 出力
+  putStrLn . yn $ x `elem` arr
