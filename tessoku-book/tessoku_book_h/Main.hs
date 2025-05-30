@@ -14,63 +14,15 @@ import GHC.Unicode (isSpace)
 ints :: IO [Int]
 ints = L.unfoldr (BS.readInt . BS.dropWhile isSpace) <$> BS.getLine
 
-ints1 :: IO Int
-ints1 =
-  ints >>= \case
-    [x] -> return x
-    _ -> error "int1: wrong number of integers"
-
-ints2 :: IO (Int, Int)
-ints2 =
-  ints >>= \case
-    [x1, x2] -> return (x1, x2)
-    _ -> error "ints2: wrong number of integers"
-
-ints3 :: IO (Int, Int, Int)
-ints3 =
-  ints >>= \case
-    [x1, x2, x3] -> return (x1, x2, x3)
-    _ -> error "ints3: wrong number of integers"
-
-ints4 :: IO (Int, Int, Int, Int)
-ints4 =
-  ints >>= \case
-    [x1, x2, x3, x4] -> return (x1, x2, x3, x4)
-    _ -> error "ints4: wrong number of integers"
-
-yn :: Bool -> String
-yn True = "Yes"
-yn False = "No"
-
-printYn :: Bool -> IO ()
-printYn = putStrLn . yn
+ints4 = ints <&> (\[x1, x2, x3, x4] -> (x1, x2, x3, x4))
 
 type Matrix = Array (Int, Int) Int
 
+-- | 二次元配列を入力から読み込む
 getMat :: Int -> Int -> IO Matrix
 getMat h w = listArray ((0, 0), (h - 1, w - 1)) . concat <$> replicateM h ints
 
--- scanMatrix :: (Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int) -> (Int -> Int -> Int -> Int -> Int) -> Matrix -> Matrix
--- scanMatrix topLeftFn leftFn topFn othersFn mat = dp
---   where
---     dp = listArray (bounds mat) (go <$> assocs mat)
---     go = \case
---       (ij@(i, j), a)
---         | ij == ij0 -> topLeftFn a
---         | i == i0 -> topFn (dp ! pred_j ij) a
---         | j == j0 -> leftFn (dp ! pred_i ij) a
---         | otherwise -> othersFn (dp ! pred_ij ij) (dp ! pred_i ij) (dp ! pred_j ij) a
---         where
---           ij0 = fst (bounds mat)
---           i0 = fst ij0
---           j0 = snd ij0
---           pred_i = first pred
---           pred_j = second pred
---           pred_ij = bimap pred pred
-
--- cum2D :: Matrix -> Matrix
--- cum2D = scanMatrix id (+) (+) (\predij predi predj val -> predi + predj - predij + val)
-
+-- | 二次元累積和を計算する
 csum2D :: Matrix -> Matrix
 csum2D mat = dp
   where
@@ -89,6 +41,7 @@ csum2D mat = dp
           pred_j = second pred
           pred_ij = bimap pred pred
 
+-- | 0行目を追加 && 各行の先頭に0を追加
 to1Index :: Matrix -> Matrix
 to1Index mat = array ((r0, c0), (h, w)) newAssocs
   where
@@ -104,14 +57,23 @@ to1Index mat = array ((r0, c0), (h, w)) newAssocs
         -- body elements
         ++ [((i, j), mat ! (i - 1, j - 1)) | i <- [1 .. h], j <- [1 .. w]]
 
+solve h w mat qs = answers
+  where
+    answers = map calcAnswer qs
+
+    -- 二次元累積和を取る
+    cumMatrix = csum2D $ to1Index mat
+
+    -- 二次元累積和を使って答えを求める関数
+    calcAnswer (a, b, c, d) =
+      (cumMatrix ! (a - 1, b - 1)) + (cumMatrix ! (c, d)) - (cumMatrix ! (a - 1, d)) - (cumMatrix ! (c, b - 1))
+
 main :: IO ()
 main = do
-  (h, w) <- ints2
-  mat <- getMat h w <&> csum2D . to1Index
-  q <- ints1
+  -- 入力
+  [h, w] <- ints
+  mat <- getMat h w
+  [q] <- ints
   qs <- replicateM q ints4
-  mapM_ (print . calcSum mat) qs
-
-calcSum :: Matrix -> (Int, Int, Int, Int) -> Int
-calcSum mat (a, b, c, d) =
-  (mat ! (a - 1, b - 1)) + (mat ! (c, d)) - (mat ! (a - 1, d)) - (mat ! (c, b - 1))
+  -- 出力
+  mapM_ print $ solve h w mat qs
