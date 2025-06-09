@@ -1,4 +1,4 @@
-import Data.Array (listArray, (!))
+import Data.Array (listArray, range, (!))
 import Data.Bits (Bits (testBit))
 import Data.ByteString.Char8 qualified as BS
 import Data.Functor ((<&>))
@@ -14,7 +14,7 @@ main = do
       aArray = listArray (1, n) as
   -- 計算
   let dp = buildDP n aArray
-      results = map (posInYDaysFromX dp) qs
+      results = map (stepYFromX dp) qs
   -- 出力
   mapM_ print results
 
@@ -22,26 +22,33 @@ main = do
 maxYj = 29
 
 -- DPを構築する(dp[d][i]は穴iから2^d日後にいる穴の番号)
-buildDP n aArray = dp
+buildDP n aArray = infListArray (0, maxYj) infDpList
   where
-    -- DPを構築する
-    dp = listArray (0, maxYj) dpList
-    -- dp[0] から dp[maxYj] のリスト
-    dpList = reverse $ foldl step [] [0 .. maxYj]
-    -- ステップ関数
-    step acm 0 = aArray : acm
-    step acm@(prev : rest) d = diffEquation prev : acm
-    step _ _ = error "buildDP: unreachable"
+    -- dpの無限リスト
+    infDpList = iterate diffEquation aArray
     -- 漸化式
-    diffEquation dp_prev = listArray (1, n) [dp_prev ! (dp_prev ! i) | i <- [1 .. n]]
+    diffEquation dp_prev = arrayWith (1, n) (\i -> dp_prev ! (dp_prev ! i))
 
--- 穴XからY日後の穴の位置を求める
-posInYDaysFromX dp (x, y) = go 0 x
+-- 穴XからアリがY回動いた後の穴の位置を求める関数
+stepYFromX dp (x, y) = foldl step x (bitIndices y)
   where
-    go d pos
-      | d > maxYj = pos
-      | testBit y d = go (d + 1) ((dp ! d) ! pos)
-      | otherwise = go (d + 1) pos
+    -- 現在位置 pos に対して、2^d 日後の位置にジャンプする（ダブリングテーブル dp を参照）
+    -- これは dp[d][pos] に相当し、アリが 2^d 回動いたあとの穴を意味する
+    step pos d = (dp ! d) ! pos
+
+    -- 与えられた整数 y に対して、2 進数表現でビットが立っている桁のインデックスを返す（下位ビットから数える）
+    -- たとえば y = 13 (1101₂) のとき、返り値は [0, 2, 3]
+    bitIndices y = filter (testBit y) [0 .. maxYj]
+
+------------------------
+-- Helper
+------------------------
+
+-- 範囲と無限リストを指定して、Arrayを生成する
+infListArray bnds@(lo, hi) infList = listArray bnds $ take (hi - lo + 1) infList
+
+-- 範囲と関数を指定して、Arrayを生成する
+arrayWith bnds f = listArray bnds [f i | i <- range bnds]
 
 ------------------------
 -- In/Out
