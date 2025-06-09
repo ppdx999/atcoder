@@ -22,13 +22,18 @@ main = do
 maxYj = 29
 
 -- DPを構築する(dp[d][i]は穴iから2^d日後にいる穴の番号)
-buildDP n aArray = listArray (0, maxYj) $ reverse $ foldl step [] [0 .. maxYj]
+buildDP n aArray = dp
   where
-    -- 初期値
+    -- DPを構築する
+    dp = listArray (0, maxYj) dpList
+    -- dp[0] から dp[maxYj] のリスト
+    dpList = reverse $ foldl step [] [0 .. maxYj]
+    -- ステップ関数
     step acm 0 = aArray : acm
-    -- 漸化式
-    step acm@(prev : rest) d = listArray (1, n) [prev ! (prev ! i) | i <- [1 .. n]] : acm
+    step acm@(prev : rest) d = diffEquation prev : acm
     step _ _ = error "buildDP: unreachable"
+    -- 漸化式
+    diffEquation dp_prev = listArray (1, n) [dp_prev ! (dp_prev ! i) | i <- [1 .. n]]
 
 -- 穴XからY日後の穴の位置を求める
 posInYDaysFromX dp (x, y) = go 0 x
