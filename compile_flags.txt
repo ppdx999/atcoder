@@ -1,0 +1,6 @@
+-std=c++17
+-nostdinc++
+-isystem
+/opt/homebrew/Cellar/gcc/15.2.0/include/c++/15
+-isystem
+/opt/homebrew/Cellar/gcc/15.2.0/include/c++/15/aarch64-apple-darwin24
